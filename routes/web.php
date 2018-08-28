@@ -14,3 +14,7 @@
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+Route::get('/inspector/fiscal_year/{fy}/{id}', 'InspectorFiscalYear@inspect');
+Route::get('/inspector/line_item/{fy}/{id}', 'Inspectors\LineItem@show');

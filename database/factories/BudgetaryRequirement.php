@@ -8,5 +8,6 @@ $factory->define(App\BudgetaryRequirement::class, function (Faker $faker) {
         'lineitem' =>$faker->catchPhrase(), 
         'peso' => $faker->numberBetween(0, 999),
         'dollar' => $faker->numberBetween(0, 999),
+        'remarks' =>"remarks: {$faker->catchPhrase()}", 
     ];
 });

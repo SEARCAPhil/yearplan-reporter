@@ -14,7 +14,7 @@ class CreateOperationalObjectiveTable extends Migration
     public function up()
     {
         Schema::create('opobjectivetb', function (Blueprint $table) {
-            $table->increments('oid');
+            $table->increments('opid');
             $table->integer('objectid');
             $table->string('operationalobjective');
         });

@@ -18,6 +18,7 @@ class CreateBudgetaryRequirementTable extends Migration
             $table->integer('activityid');
             $table->integer('line2id');
             $table->string('lineitem');
+            $table->string('remarks');
             $table->float('peso');
             $table->float('dollar');
         });

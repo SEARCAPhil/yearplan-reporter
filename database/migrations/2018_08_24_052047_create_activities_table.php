@@ -14,7 +14,7 @@ class CreateActivitiesTable extends Migration
     public function up()
     {
         Schema::create('activitytb', function (Blueprint $table) {
-            $table->increments('id');
+            $table->increments('activityid');
             $table->integer('opid');
             $table->string('activitydesc');
         });
