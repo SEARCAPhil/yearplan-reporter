@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Inspectors;
 
 use Illuminate\Http\Request;
-use App\Http\Resources\Budget as BudgetResource;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\Builder as Builder;
 
 
-class InspectorFiscalYear extends Controller
+class FiscalYear extends Controller
 {
 
   function __construct () {
@@ -53,9 +53,17 @@ class InspectorFiscalYear extends Controller
             foreach($act_val->budgetary_requirements as $req_key => $req_val) {
               $__HTML.="{$__breaker}{$__spacer}{$__spacer}
               <details><summary>{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}
-              <u>Line Item # {$req_val->lineid}</u>{$__spacer}{$__spacer}{$req_val->code}{$__spacer} <b>{$req_val->lineitem}</b>
+              <u>Line Item # {$req_val->lineid}</u>
+              {$__spacer}{$__spacer}{$req_val->code}{$__spacer} <b>{$req_val->line2desc}</b>
+              {$__breaker}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}
+              {$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}
+              {$req_val->lineitem}
               {$__spacer}{$__spacer}{$__spacer} PHP: {$req_val->peso}
               {$__spacer}{$__spacer}{$__spacer} USD: {$req_val->dollar}
+
+              {$__breaker}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}
+              {$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}{$__spacer}
+              <i>{$req_val->remarks}</i>
               
               {$__breaker}</summary>
               {$__breaker}
