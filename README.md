@@ -31,11 +31,20 @@ Go to the first URL if you are running your own websever or the latter if you do
 php artisan migrate:fresh -v --seed
 ```
 
+### Reports
+**Line Item**
+`/public/reports/line_item/{fy}/{user_id}`
+
 
 ### AST Inspector
-Line Item
-> /yearplan-reporter/public/inspector/line_item/{fyid}/{user_id}
+**Line Item**
+` /yearplan-reporter/public/inspector/line_item/{fyid}/{user_id}`
 
-Fiscal Year
->/yearplan-reporter/public/inspector/fiscal_year/{fyid}/{user_id}
+**Fiscal Year**
+` /yearplan-reporter/public/inspector/fiscal_year/{fyid}/{user_id}`
+
+**Line Item (Merged)**
+` /inspector/line_item_merge/{fyids}/{user_id} `
+
+> ex. /inspector/line_item_merge/4,3,1/1`
 
