@@ -5,24 +5,40 @@ namespace App\Http\Controllers\inspectors;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Mergers\LineItem as LineItemMerger;
+use App\Http\Controllers\Account as Account;
 
 class LineItemMerge extends Controller
 {
     function __construct () {
         $this->merger = new LineItemMerger();
+        $this->account = new Account();
+        $this->department_name = '';
     }
 
     public function show ($fy, $id) {
         $__result = self::run($fy, $id);
     }
+
+    private function get_user_details ($id) {
+        return $this->account->view($id);
+    }
     
     public function run ($fy, $id) {
         $this->ast = $this->merger->merge($fy, $id);
+        $__account_info = (self::get_user_details($id));
+
+        if(!isset($__account_info[0])) { 
+            echo 'Invalid Account';
+            exit;
+        }
+        
+        $this->department_name = $__account_info[0]->fullname;
+
          # build HTML files
          $__spacer = '&emsp;&emsp;';
          $__breaker = '<br/>';
          $__HTML = '<style>body { padding: 50px; font-size:12.5px; }</style>';
-         $__HTML.= '<h3>AST Inspector</h3><p>Tree View for Plan Line Item per FY (MERGED)</p><hr/><br/><br/>';
+         $__HTML.= "<h3>AST Inspector</h3><p>Tree View for Plan Line Item per FY (MERGED) - <b>{$this->department_name}</b></p><hr/><br/><br/>";
 
         foreach($this->ast as $key => $val) {  
             $__HTML.="<details open><summary>{$__spacer}Line Item: <b>{$key}</b></summary>{$__breaker}";

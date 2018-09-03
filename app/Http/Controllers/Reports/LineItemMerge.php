@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Mergers\LineItem as LineItemMerger;
 use App\Http\Controllers\LineItem as LineItem;
 use App\Http\Controllers\Yearplan as YearPlan;
+use App\Http\Controllers\Account as Account;
 use Dompdf\Dompdf;
 
 
@@ -20,6 +21,8 @@ class LineItemMerge extends Controller
         $this->merger = new LineItemMerger();
         $this->line_item = new LineItem();
         $this->year_plan = new YearPlan();
+        $this->account = new Account();
+        $this->department_name = '';
         $this->date = date('M-d-Y');  
         $this->logo = public_path('img/logo.png');
         $this->style = self:: get_style();
@@ -35,6 +38,10 @@ class LineItemMerge extends Controller
         }
 
         return $__line_items;
+    }
+
+    private function get_user_details ($id) {
+        return $this->account->view($id);
     }
 
     private function get_year_plan ($id) {
@@ -267,9 +274,13 @@ class LineItemMerge extends Controller
         </style>';
     }
 
-    public function get_html ($id) {
+    public function get_html ($id, $uid) {
         $__fyps = self::get_year_plan($id);
+        # user info
+        $__account_info = (self::get_user_details($uid));
+        if(!isset($__account_info[0])) exit;
         if(empty($__fyps)) exit;
+        $this->department_name = $__account_info[0]->fullname;
         # merge
         $this->ast = $this->merger->merge($__fyps, 1);
 
@@ -415,7 +426,7 @@ class LineItemMerge extends Controller
                 <img src='{$this->logo}' width='150px'/>
                 <article>
                     <section style='width:100%;height:20px;text-align:center;font-size:smaller;'>
-                        <b>KMD - Training Unit</b><br/>
+                        <b>{$this->department_name}</b><br/>
                         <small>
                             Details of Total Budget<br/>
                         </small>
@@ -435,14 +446,14 @@ class LineItemMerge extends Controller
         return $html;
     }
 
-    public function print($fy, $id) {
+    public function print($fy, $uid) {
         // instantiate and use the dompdf class
         $dompdf = new Dompdf();
         // options
         $dompdf->set_option('isHtml5ParserEnabled', true);
         $dompdf->set_option('defaultFont', 'Arial');
 
-        $dompdf->loadHtml(self::get_html($fy));
+        $dompdf->loadHtml(self::get_html($fy, $uid));
 
         // (Optional) Setup the paper size and orientation
         $dompdf->setPaper('A4', 'portrait');
