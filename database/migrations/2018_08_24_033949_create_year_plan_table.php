@@ -13,7 +13,7 @@ class CreateYearPlanTable extends Migration
      */
     public function up()
     {
-        Schema::create('fyp', function (Blueprint $table) {
+        Schema::create('fyp_tb', function (Blueprint $table) {
             $table->increments('fyp_id');
             $table->longText('fyp_desc');
         });
@@ -26,6 +26,6 @@ class CreateYearPlanTable extends Migration
      */
     public function down()
     {
-        Schema::drop('fyp');
+        Schema::drop('fyp_tb');
     }
 }

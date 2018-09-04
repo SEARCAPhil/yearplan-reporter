@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Fyp extends Model
 {
-    protected $table = 'fyp';
+    protected $table = 'fyp_tb';
     protected $fillable = ['fyp_desc'];
     public $timestamps = false;
 

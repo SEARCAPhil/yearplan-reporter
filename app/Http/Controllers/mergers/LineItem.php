@@ -25,7 +25,7 @@ class LineItem extends Controller
         foreach($__fys as $key => $val) { 
             self::run((int) $val, $id);
         }
-
+        
         return $this->parsedAST;
     }
 
@@ -39,11 +39,11 @@ class LineItem extends Controller
          */
 
         # get data
-        $this->ast = $this->parser->run($fy, $id);
+        $this->__ast = $this->parser->run($fy, $id);
         $this->preParsedAST = [];
-
+        
         # query
-        foreach($this->ast as $key => $val) {
+        foreach($this->__ast as $key => $val) {
             # line items
             foreach($val->line_items as $line_key => $line_val) { 
                 $this->preParsedAST[$line_key] = [];
@@ -57,7 +57,7 @@ class LineItem extends Controller
 
     }
 
-    public function run ($fy, $id) { 
+    public function run ($fy, $id) {  
 
         $this->ast = self::preParsed($fy, $id);
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class User extends Model
 {
-    protected $table = 'users';
+    protected $table = 'usertb';
     protected $fillable = ['adminrights', 'fullname', 'alias', 'username', 'password'];
     public $timestamps = false;
 
