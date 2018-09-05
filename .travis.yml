@@ -1,0 +1,14 @@
+language: php
+php:
+  - '7.0'
+  - nightly
+services:
+  - mysql
+dist: trusty
+sudo: required
+before_script:
+  - composer update
+  - mysql -u root -e "CREATE database fyp;"
+  - cp .env.example .env
+  - php artisan key:generate
+  - php artisan migrate:fresh -v --seed

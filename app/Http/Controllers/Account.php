@@ -8,6 +8,6 @@ use Illuminate\Support\Facades\DB;
 class Account extends Controller
 {
     public function view ($id) {
-        return DB::select('SELECT * FROM users WHERE userid = ?', [$id]);  
+        return DB::select('SELECT * FROM usertb WHERE userid = ?', [$id]);  
     }
 }

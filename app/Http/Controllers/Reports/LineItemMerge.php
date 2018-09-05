@@ -89,10 +89,13 @@ class LineItemMerge extends Controller
             $__total_activity_peso_eng = number_format($total_activity_peso, 2, '.', ',');
             $__total_activity_dollar_eng = number_format($total_activity_dollar, 2, '.', ',');
 
+            # hide 0 values
+            $__total_activity_peso_eng = $__total_activity_peso_eng > 0 ? $__total_activity_peso_eng : '';
+            $__total_activity_dollar_eng = $__total_activity_dollar_eng > 0 ? $__total_activity_dollar_eng  : '';
+
             $__fy_html_buffer.="<tr> 
                 <td class='text-right  v-top'>{$this->activityLineCounter}</td>
-                <td class='bold'> &nbsp; </td>
-                <td class='text-left' style='padding-left:20px;word-wrap: break-word;'>
+                <td class='text-left' style='padding-left:20px;word-wrap: break-word;' colspan='2'>
                     <span class='text-green bold text-left' style='float:left;height: auto; margin-bottom:10px;'>{$act_key}</span>
                 </td>
                 <td class='text-right bold'>&nbsp;</td>
@@ -138,6 +141,10 @@ class LineItemMerge extends Controller
             # number notation
             $__budg_val_peso_eng = number_format($budg_val->peso, 2, '.', ',');
             $__budg_val_dollar_eng = number_format($budg_val->dollar, 2, '.', ',');
+
+            # hide 0 values
+            $__budg_val_peso_eng = $__budg_val_peso_eng > 0 ? $__budg_val_peso_eng : '';
+            $__budg_val_dollar_eng = $__budg_val_dollar_eng > 0 ?$__budg_val_dollar_eng : '';
 
             # html
             $__budgetary_html_buffer.="<tr> 
@@ -187,7 +194,7 @@ class LineItemMerge extends Controller
             .table {
                 border-spacing: 0px;
                 border-collapse: separate;
-                width: 100%;
+                width: 95%;
                 font-size: 9.5px;
             }
 
@@ -275,14 +282,14 @@ class LineItemMerge extends Controller
     }
 
     public function get_html ($id, $uid) {
-        $__fyps = self::get_year_plan($id);
+        $__fyps = self::get_year_plan($id);  
         # user info
         $__account_info = (self::get_user_details($uid));
         if(!isset($__account_info[0])) exit;
         if(empty($__fyps)) exit;
         $this->department_name = $__account_info[0]->fullname;
         # merge
-        $this->ast = $this->merger->merge($__fyps, 1);
+        $this->ast = $this->merger->merge($__fyps, $uid);
 
         # total amount
         $grand_total_peso = $grand_total_dollar = 0;
@@ -292,9 +299,9 @@ class LineItemMerge extends Controller
         $table.="
             <thead>
                 <th width='15px' class='text-right'>&nbsp;</th>
-                <th width='25px' class='bordered'>&nbsp;</th>
+                <th width=40px' class='bordered'>&nbsp;</th>
 
-                <th width='300px' class='bordered'>&nbsp;</th>
+                <th width='320px' class='bordered'>&nbsp;</th>
                 <th width='40px' class='text-right bordered'>&nbsp</th>
 
                 <th width='40px' class='text-right bordered'>PESO</th>
@@ -349,10 +356,14 @@ class LineItemMerge extends Controller
                     $total_fy_peso_eng = number_format($total_fy_peso, 2, '.', ',');
                     $total_fy_dollar_eng = number_format($total_fy_dollar, 2, '.', ',');
 
+                    # hide 0 values
+                    $total_fy_peso_eng = $total_fy_peso_eng > 0 ? $total_fy_peso_eng : '';
+                    $total_fy_dollar_eng = $total_fy_dollar_eng> 0 ? $total_fy_dollar_eng : '';
+
+
                     $line_item_html_buffer.="<tr> 
                         <td class='text-right v-top'>{$this->fyLineCounter}</td>
-                        <td class='bold'> &nbsp; </td>
-                        <td class='text-left bold  text-red'>&nbsp;FY {$fy_key} </td>
+                        <td class='text-left bold  text-red' colspan='2'>&nbsp;FY {$fy_key} </td>
                         <td class='text-right bold'>&nbsp;</td>
                         <td class='text-right bold'>&nbsp;</td>
                         <td class='text-right bold text-red v-top'>{$total_fy_peso_eng}</td>
@@ -377,10 +388,19 @@ class LineItemMerge extends Controller
                 # number notation
                 $total_line_item_peso_eng = number_format($total_line_item_peso, 2, '.', ',');
                 $total_line_item_dollar_eng = number_format($total_line_item_dollar, 2, '.', ',');
+
+                # hide 0 values
+                $total_line_item_peso_eng = $total_line_item_peso_eng > 0 ? $total_line_item_peso_eng : '';
+                $total_line_item_dollar_eng = $total_line_item_dollar_eng  > 0 ? $total_line_item_dollar_eng  : '';
+
+                # map line item code
+                $code = $this->line_items[$key];
+                $code = $code > 0 ? $code  : '';
+
                 $table.="<tr class='header'> 
-                    <td class='text-right'>{$this->lineCounter}</td>
-                    <td>&nbsp;<b>{$this->line_items[$key]}</b></td>
-                    <td class='bold'> {$key} </td>
+                    <td class='text-right v-top'>{$this->lineCounter}</td>
+                    <td class='v-top'>&nbsp;<b>{$code}</b></td>
+                    <td class='bold v-top'> {$key} </td>
                     <td class='text-right bold'>&nbsp;</td>
                     <td class='text-right bold'>&nbsp;</td>
                     <td class='text-right bold'>&nbsp;</td>
@@ -402,13 +422,19 @@ class LineItemMerge extends Controller
         
             
         # grand total
+        $grand_total_peso_eng = number_format($grand_total_peso, 2, '.', ',');
         $grand_total_dollar_eng = number_format($grand_total_dollar, 2, '.', ',');
+
+        # hide 0 values
+        $grand_total_dollar_eng = $grand_total_dollar_eng > 0 ? $grand_total_dollar_eng : '';
+        $grand_total_peso_eng =  $grand_total_peso_eng > 0 ?  $grand_total_peso_eng : '';
+        
         $table.="<tr class='header'> 
                 <td colspan='3' class='bold'>GRAND TOTAL</td>
                 <td class='text-right bold'>&nbsp;</td>
                 <td class='text-right bold'>&nbsp;</td>
                 <td class='text-right bold'>&nbsp;</td>
-                <td class='text-right bold'>{$grand_total_peso}</td>
+                <td class='text-right bold'>{$grand_total_peso_eng}</td>
                 <td class='text-right bold'>&nbsp;</td>
                 <td class='text-right bold'>&nbsp;</td>
                 <td class='text-right bold'>{$grand_total_dollar_eng}</td>
@@ -433,11 +459,13 @@ class LineItemMerge extends Controller
                     </section>     
                 </article>
             </header>
-            <footer style='display:block;'>
-                <hr/>
-                <div style='float: left;width: 30%;height:100%;'>Operational Planning Report - Date: {$this->date} </div>
+
+            
+            <footer>
+                <div style='width: 30%;'>Operational Planning Report - Date: {$this->date} </div>
                 <div class='text-right'>Page <span class='page-number'> </span></div>
             </footer>
+
             <main>{$table}</main>
 
             </body>
