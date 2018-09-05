@@ -9,6 +9,6 @@ sudo: required
 before_script:
   - composer update
   - mysql -u root -e "CREATE database fyp;"
-  - php artisan key:generate
   - cp .env.example .env
+  - php artisan key:generate
   - php artisan migrate:fresh -v --seed
