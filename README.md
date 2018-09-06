@@ -1,6 +1,8 @@
 # Yearplan Management reporter
 Reporter module for SEARCA's nth Year Operational Planning Information System
 
+![status](https://travis-ci.org/SEARCAPhil/yearplan-reporter.svg?branch=develop)
+
 ![image](https://upload.wikimedia.org/wikipedia/commons/9/9b/Social_Network_Analysis_Visualization.png)
 ### Installation
 
@@ -51,5 +53,5 @@ Arranged by line item and fiscal year
 **Line Item (Merged)**
 ` /inspector/line_item_merge/{fyids}/{user_id} `
 
-> ex. /inspector/line_item_merge/4,3,1/1`
+> ex. /inspector/line_item_merge/4,3,1/1
 
