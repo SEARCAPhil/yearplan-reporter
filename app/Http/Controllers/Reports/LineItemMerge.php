@@ -149,7 +149,7 @@ class LineItemMerge extends Controller
             $__budgetary_html_buffer.="<tr> 
                 <td class='text-right v-top'>{$this->requirementLineCounter}</td>
                 <td class='bold'> &nbsp; </td>
-                <td class='text-left' style='padding-left:40px;float: left;'><br/>
+                <td class='text-left' style='padding-left:0px;float: left;'><br/>
                     <span class='bold'>{$budg_val->lineitem}</span><br/>
                     <i>{$budg_val->remarks}</i>
                 </td>
@@ -203,6 +203,11 @@ class LineItemMerge extends Controller
 
             .table tr.header {
                 background: rgb(240,240,240);
+                margin-top: 15px;
+            }
+
+            .table tr.header-light {
+                background: rgb(250,250,250);
                 margin-top: 15px;
             }
             
@@ -360,7 +365,7 @@ class LineItemMerge extends Controller
                     $total_fy_dollar_eng = $total_fy_dollar_eng> 0 ? $total_fy_dollar_eng : '';
 
 
-                    $line_item_html_buffer.="<tr> 
+                    $line_item_html_buffer.="<tr class='header-light'> 
                         <td class='text-right v-top'>{$this->fyLineCounter}</td>
                         <td class='text-left bold  text-red' colspan='2'>&nbsp;FY {$fy_key} </td>
                         <td class='text-right bold'>&nbsp;</td>
