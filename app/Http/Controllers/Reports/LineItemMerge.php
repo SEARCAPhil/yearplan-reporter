@@ -24,11 +24,10 @@ class LineItemMerge extends Controller
         $this->account = new Account();
         $this->department_name = '';
         $this->date = date('M-d-Y');  
-        $this->logo = public_path('img/logo.png');
-        $this->style = self:: get_style();
+        $this->logo = 'img/logo.png';
+        $this->style = self::get_style();
         $this->lineCounter = $this->fyLineCounter = $this->activityLineCounter = 0;
         $this->line_items = self::get_line_items();
-       
     }
 
     private function get_line_items () {
@@ -476,7 +475,7 @@ class LineItemMerge extends Controller
 
     public function print($fy, $uid) {
         // instantiate and use the dompdf class
-        $dompdf = new Dompdf();
+        $dompdf = new Dompdf(array('enable_remote' => true));
         // options
         $dompdf->set_option('isHtml5ParserEnabled', true);
         $dompdf->set_option('defaultFont', 'Arial');
