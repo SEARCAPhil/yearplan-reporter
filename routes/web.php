@@ -19,6 +19,9 @@ Route::get('/', function () {
 Route::get('/inspector/fiscal_year/{fy}/{id}', 'Inspectors\FiscalYear@inspect');
 Route::get('/inspector/line_item/{fy}/{id}', 'Inspectors\LineItem@show');
 Route::get('/inspector/line_item_merge/{fy}/{id}', 'Inspectors\LineItemMerge@show');
+Route::get('/inspector/cost_center/{fy}/{id}', 'Inspectors\CostCenter@show');
+Route::get('/inspector/cost_center_merge/{fy}/{id}', 'Inspectors\CostCenterMerge@show');
 
 # reports
 Route::get('/reports/line_item/{fy}/{id}', 'Reports\LineItemMerge@print');
+Route::get('/reports/cost_center/{fy}/{id}', 'Reports\CostCenter@print');

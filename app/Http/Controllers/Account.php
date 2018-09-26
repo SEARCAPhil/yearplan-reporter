@@ -10,4 +10,8 @@ class Account extends Controller
     public function view ($id) {
         return DB::select('SELECT * FROM usertb WHERE userid = ?', [$id]);  
     }
+
+    public function lists () {
+        return DB::select('SELECT * FROM usertb');  
+    }
 }
