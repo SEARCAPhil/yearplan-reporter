@@ -24,4 +24,4 @@ Route::get('/inspector/cost_center_merge/{fy}/{id}', 'Inspectors\CostCenterMerge
 
 # reports
 Route::get('/reports/line_item/{fy}/{id}', 'Reports\LineItemMerge@print');
-Route::get('/reports/cost_center/{fy}/{id}', 'Reports\CostCenter@print');
+Route::get('/reports/cost_center/{fy}/{options?}', 'Reports\CostCenter@print');

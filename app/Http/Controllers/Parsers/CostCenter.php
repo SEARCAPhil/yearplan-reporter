@@ -15,7 +15,7 @@ class CostCenter extends Controller
 		
     }
     
-    public function run ($fy, $id) {
+    public function run ($fy, $id, $excluded_line_items = []) {
 		$this->parsedAST = [];
 		$this->parsedAST[$fy] = new \StdClass();
 
@@ -42,11 +42,14 @@ class CostCenter extends Controller
 					foreach($opobj_val->activities as $act_key => $act_val) {
 			
 						# budgetary requirements / line items
-                        foreach($act_val->budgetary_requirements as $req_key => $req_val) {
+                        foreach($act_val->budgetary_requirements as $req_key => $req_val) { 
 
-                            # compute total amount
-                            $this->parsedAST[$fy]->total_peso += $req_val->peso;
-                            $this->parsedAST[$fy]->total_dollar += $req_val->dollar;
+							# compute total amount
+							# exclude line items in the exclusion list
+							if(!in_array(strtolower($req_val->line2desc), $excluded_line_items)) {
+                            	$this->parsedAST[$fy]->total_peso += $req_val->peso;
+								$this->parsedAST[$fy]->total_dollar += $req_val->dollar;
+							}
 				
 						}
 
@@ -56,8 +59,8 @@ class CostCenter extends Controller
 
 			}
 
-        }
-        
+		}
+		
 		return $this->parsedAST;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\mergers;
+namespace App\Http\Controllers\Mergers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -12,7 +12,8 @@ class CostCenter extends Controller
     function __construct () {
         $this->parser = new CostCenterParser();
         $this->account = new Account();
-        $this->parsedAST = [];   
+        $this->parsedAST = [];
+        $this->excluded_line_items = [];   
     }
 
     private function get_user_details ($id) {
@@ -24,7 +25,8 @@ class CostCenter extends Controller
     }
 
 
-    public function merge ($fy, $id) {
+    public function merge ($fy, $id, $excluded_line_items = []) {
+        $this->excluded_line_items = $excluded_line_items;
 
         $__fys = explode(',', $fy);
         foreach($__fys as $key => $val) { 
@@ -44,7 +46,7 @@ class CostCenter extends Controller
          */
 
         # get data
-        $this->__ast = $this->parser->run($fy, $id);
+        $this->__ast = $this->parser->run($fy, $id, $this->excluded_line_items);
 
         $this->preParsedAST = [];
 
@@ -68,6 +70,7 @@ class CostCenter extends Controller
             
             $this->preParsedAST[$this->department_name][$val->yeardesc]->total_peso += $val->total_peso;
             $this->preParsedAST[$this->department_name][$val->yeardesc]->total_dollar += $val->total_dollar;
+            $this->preParsedAST[$this->department_name][$val->yeardesc]->exchangerate = $val->exchangerate;
         }
 
         return $this->preParsedAST;
@@ -87,12 +90,15 @@ class CostCenter extends Controller
             foreach($val as $key_fy => $val_fy) {
                 if(!isset($this->parsedAST[$key][$key_fy]))  $this->parsedAST[$key][$key_fy] = new \StdClass;
                 if(!isset($this->parsedAST[$key][$key_fy]->total_peso)) $this->parsedAST[$key][$key_fy]->total_peso = $this->parsedAST[$key][$key_fy]->total_dollar = 0;
-
+                
                 # peso
                 $this->parsedAST[$key][$key_fy]->total_peso += $val_fy->total_peso;
     
                 # dollar
                 $this->parsedAST[$key][$key_fy]->total_dollar+= $val_fy->total_dollar;
+                
+                # exchangerate
+                $this->parsedAST[$key][$key_fy]->exchangerate= $val_fy->exchangerate;
 
             }
         }
