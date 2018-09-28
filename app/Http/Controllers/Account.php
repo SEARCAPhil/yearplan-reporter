@@ -12,6 +12,6 @@ class Account extends Controller
     }
 
     public function lists () {
-        return DB::select('SELECT * FROM usertb');  
+        return DB::select('SELECT * FROM usertb ORDER BY fullname ASC');  
     }
 }

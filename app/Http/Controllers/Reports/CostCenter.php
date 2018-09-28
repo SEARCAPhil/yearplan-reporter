@@ -24,19 +24,29 @@ class CostCenter extends Controller
         $this->year_plan = new YearPlan();
         $this->fyp = new Fyp();
         $this->account = new Account();
+
+        # defaults
         $this->users = self::get_all_users();
         $this->style = self::get_style();
-        $this->adminGroup = 1;
-        $this->programGroup = 2;
-        $this->filter_accounts = '';
-        $this->department_name = '';
-        $this->year_plan_names = [];
-        $this->lineCounter = $this->fyLineCounter = $this->activityLineCounter = 0;
-        $this->line_items = self::get_line_items();        
+        $this->line_items = self::get_line_items();
         $this->date = date('M-d-Y');  
         $this->logo = 'img/logo.png';
+        $this->year_plan_names = [];
+
+        # filter by user types
+        $this->adminGroup = 1;
+        $this->programGroup = 2;
+
+        # mode
         $this->isMOOE = false;
-        $this->exluded_line_items = ['user-centric maximized database'];    
+
+        # Exclude line items and cost center in the report
+        $this->exluded_line_items = ['user-centric maximized database'];
+        $this->exluded_cost_centers = [35, 29, 4, 3, 14, 20, 30, 32, 36];
+
+        # amounts      
+        $this->total_amounts = [];  
+        $this->grand_total_peso = $this->grand_total_dollar = $this->grand_total_peso_consolidated = $this->grand_total_dollar_consolidated = 0;  
     }
 
     /**
@@ -68,18 +78,17 @@ class CostCenter extends Controller
      * 
      */
     private function get_year_plan ($id) {
-        $__year_plans = ($this->year_plan->get_yearplan_per_fyp ($id));
-        $this->fyp_details = $this->fyp->view($id);
+
+        $this->year_plans = ($this->year_plan->get_yearplan_per_fyp ($id));
         $__year_plans_ids = [];
         $this->year_plan_names = [];
-        $this->year_plans =  $__year_plans;
+        $this->fyp_details = $this->fyp->view($id);
 
-        foreach($__year_plans as $key => $val) {
+        foreach($this->year_plans as $key => $val) {
             array_push($this->year_plan_names, $val->yeardesc);
             if($val->yearplanid)  array_push($__year_plans_ids, $val->yearplanid);
         }
 
-        $this->fys = implode(' / ', $this->year_plan_names);
         return implode(',', $__year_plans_ids);
     }
 
@@ -124,7 +133,7 @@ class CostCenter extends Controller
             }
 
             .table tr.header {
-                background: rgb(200,200,200);
+                background: #ccc;
                 font-weight: bold;
                
             }
@@ -146,7 +155,11 @@ class CostCenter extends Controller
             }
 
             .bg-light {
-                background: rgba(255, 250, 200, 0.3);
+                background: #f0ad4e;
+            }
+
+            .bg-red {
+                background: #d9534f;
             }
 
             header p {
@@ -206,38 +219,74 @@ class CostCenter extends Controller
         </style>';
     }
 
+
     /**
      * 
      */
-    public function get_fy_header_table () {
-        $table = '';
+    private function get_fy_header_table () {
+        
         # Fiscal Year Headers
-        foreach($this->year_plan_names as $key => $val) {
-            $table.="<td class='text-center' colspan='2'>{$val}</td>";
-        }
+        $__table = '';
+        foreach($this->year_plan_names as $key => $val) $__table.="<td class='text-center' colspan='2'>{$val}</td>";
 
-        for($x = 0; $x < (count($this->year_plan_names)-5); $x++) {
-            $table.="<td class='bordered text-center' colspan='2'>&nbsp;</td>";
-        }
+        for($x = 0; $x < (count($this->year_plan_names)-5); $x++) $__table.="<td class='bordered text-center' colspan='2'>&nbsp;</td>";
 
-        return $table;
+        return $__table;
     }
+
 
     /**
      * 
      */
     public function get_fy_header_amount () {
-        $table = '';
+        
         # Fiscal Year Headers
-        foreach($this->year_plan_names as $key => $val) {
-            $table.="<td class='bordered text-center'>PESO</th>
-            <td class='bordered text-center'>DOLLAR</th>";
+        $__table = '';
+        foreach($this->year_plan_names as $key => $val) $__table.="<td class='bordered text-center'>PESO</td><td class='bordered text-center'>DOLLAR</td>";
+
+        for($x = 0; $x < (count($this->year_plan_names)-5); $x++) $__table.="<td class='bordered text-center'>&nbsp;</td><td class='bordered text-center'>&nbsp;</td>";
+    
+        return $__table;
+    }
+
+
+    /**
+     * 
+     */
+    public function get_fy_total_column () {
+        $table="<tr style='background: #eee;' class='bold'><td class='bordered text-center bold'>TOTAL</td>";
+
+        # Fiscal Year Headers
+        foreach($this->year_plan_names as $key => $val) { 
+            $__peso = isset($this->total_amounts[$val]) ? $this->total_amounts[$val]->peso : 0;
+            $__peso_formatted = $__peso < 1 ? '' : number_format($__peso, 0, '.' , ',');
+
+            $__dollar = isset($this->total_amounts[$val]) ? $this->total_amounts[$val]->dollar : 0;
+            $__dollar_formatted = $__dollar < 1 ? '' : number_format($__dollar, 0, '.' , ',');
+
+            $table.="<td class='bordered text-right'>{$__peso_formatted}</td>
+            <td class='bordered text-right'>{$__dollar_formatted}</th>";
         }
 
         for($x = 0; $x < (count($this->year_plan_names)-5); $x++) {
-            $table.="<td class='bordered text-center'>&nbsp;</th>
-            <td class='bordered text-center'>&nbsp;</th>";
+            $table.="<td class='bordered text-center'>&nbsp;</td>
+            <td class='bordered text-center'>&nbsp;</td>";
         }
+
+        # GRAND TOTAL
+        $this->grand_total_peso_formatted = $this->grand_total_peso < 1 ? '' : number_format($this->grand_total_peso, 0, '.' , ',');
+        $this->grand_total_dollar_formatted = $this->grand_total_dollar < 1 ? '' : number_format($this->grand_total_dollar, 0, '.' , ',');
+
+        # GRAND TOTAL CONSOLIDATED
+        $this->grand_total_peso_consolidated_formatted = $this->grand_total_peso_consolidated < 1 ? '' : number_format($this->grand_total_peso_consolidated, 0, '.' , ',');
+        $this->grand_total_dollar_consolidated_formatted = $this->grand_total_dollar_consolidated < 1 ? '' : number_format($this->grand_total_dollar_consolidated, 0, '.' , ',');
+
+
+        $table.="<td class='bordered text-right'>{$this->grand_total_peso_formatted}</td>
+        <td class='bordered text-right'>{$this->grand_total_dollar_formatted}</td>";
+
+        $table.="<td class='bordered text-right bg-red'>{$this->grand_total_peso_consolidated_formatted}</td>
+        <td class='bordered text-right bg-red'>{$this->grand_total_dollar_consolidated_formatted}</td></tr>";
 
         return $table;
     }
@@ -247,57 +296,71 @@ class CostCenter extends Controller
      * 
      */
     public function get_fy_td_amount ($peso = '', $dollar = '') {
-
-        return "<td class='bordered text-center'>{$peso}</td>
-                <td  class='bordered text-center'>{$dollar}</td>";
+        return "<td class='bordered text-center'>{$peso}</td><td class='bordered text-center'>{$dollar}</td>";
     }
 
     public function get_cost_center_data ($id, $uid) {
+        # get all fyp
         $__fyps = self::get_year_plan($id);
         
         # user info
         $__account_info = (self::get_user_details($uid));
         if(!isset($__account_info[0])) exit;
         if(empty($__fyps)) exit;
-        $this->department_name = $__account_info[0]->fullname;
 
-        # merge
+        # merge and exclude certain line items if mooe is set to true
+        # Note: adding mooe=true in url query parameter will override $this->mooe default value
         $this->ast = $this->isMOOE == true ? $this->merger->merge($__fyps, $uid, $this->exluded_line_items) : $this->merger->merge($__fyps, $uid);
 
-        foreach($this->ast as $key => $value) {
-            $table = ''; 
-            $table.="<tr>
-                        <td>{$key}</td>";
-           
-           $__total_peso = $__total_dollar =0;
-           foreach($this->year_plan_names as $key => $val) {
+        $__peso_column = $__dollar_column  =  $__peso_column_consolidated = $__dollar_column_consolidated = 0;
+        $__total_amount_per_column = [];
 
-               # amount
+        foreach($this->ast as $key => $value) {
+
+            $__table = "<tr><td>{$__account_info[0]->alias}</td>";
+            $__total_peso = $__total_dollar = 0;
+
+            foreach($this->year_plan_names as $keys => $val) { 
+                
+                # amount
                 $__peso = @$value[$val]->total_peso;
                 $__dollar = @$value[$val]->total_dollar;
                 $__peso_formatted = $__peso < 1 ? '' : number_format($__peso, 0, '.' , ',');
                 $__dollar_formatted = $__dollar < 1 ? '' : number_format($__dollar, 0, '.' , ',');
 
-                # Total
+                # total amount per column
+                if(!isset($__total_amount_per_column[$val]))  $__total_amount_per_column[$val] = new \StdClass;
+                if(!isset($__total_amount_per_column[$val]->peso))  $__total_amount_per_column[$val]->peso =  $__total_amount_per_column[$val]->dollar = 0;
+                $__total_amount_per_column[$val]->peso += $__peso;
+                $__total_amount_per_column[$val]->dollar += $__dollar;
+
+            
+                # total amount per row
                 $__total_peso += $__peso;
                 $__total_dollar += $__dollar;
 
-                $table.="<td class='bordered text-center'><b>{$__peso_formatted}</b></td>
-                <td class='bordered text-center'><b>{$__dollar_formatted}</b></td>";
+                # amount per column
+                $__table.="<td class='bordered text-right'><b>{$__peso_formatted}</b></td><td class='bordered text-right'><b>{$__dollar_formatted}</b></td>";
             }
 
+            $this->total_amounts =  $__total_amount_per_column;
+ 
             for($x = 0; $x < (count($this->year_plan_names)-5); $x++) {
-                $table.="<td class='bordered text-center'>&nbsp;</td>
-                <td class='bordered text-center'>&nbsp;</td>";
+                $__table.="<td class='bordered text-center'>&nbsp;</td><td class='bordered text-center'>&nbsp;</td>";
             }
-
+               
             
             # TOTAL
             $__total_peso_formatted = $__total_peso < 1 ? '' : number_format($__total_peso, 0, '.' , ',');
             $__total_dollar_formatted = $__total_dollar < 1 ? '' : number_format($__total_dollar, 0, '.' , ',');
 
-            $table.="<td class='bordered text-center'><b>{$__total_peso_formatted}</b></td>
-                <td class='bordered text-center'><b>{$__total_dollar_formatted}</b></td>";
+            # grand total
+            $__peso_column +=$__total_peso;
+            $__dollar_column +=$__total_dollar;
+            $this->grand_total_peso = $__peso_column;
+            $this->grand_total_dollar = $__dollar_column;
+
+            $__table.="<td class='bordered text-right'><b>{$__total_peso_formatted }</b></td><td class='bordered text-right'><b>{$__total_dollar_formatted}</b></td>";
 
             # consolidated
             $__total_peso_consolidated = $__total_peso + ($__total_dollar * $value[$val]->exchangerate);
@@ -306,45 +369,44 @@ class CostCenter extends Controller
             $__total_peso_consolidated_formatted = $__total_peso_consolidated < 1 ? '' : number_format($__total_peso_consolidated, 0, '.' , ',');
             $__total_dollar_consolidated_formatted = $__total_dollar_consolidated < 1 ? '' : number_format($__total_dollar_consolidated, 0, '.' , ',');
 
-            $table.="<td class='bordered text-center bg-light'><b>{$__total_peso_consolidated_formatted}</b></td>
-                <td  class='text-center bg-light'><b>{$__total_dollar_consolidated_formatted}</b></td>";
+            # grand total consolidated
+            $__peso_column_consolidated +=$__total_peso_consolidated;
+            $__dollar_column_consolidated+=$__total_dollar_consolidated;
+            $this->grand_total_peso_consolidated = $__peso_column_consolidated;
+            $this->grand_total_dollar_consolidated = $__dollar_column_consolidated;
+
+            $__table.="<td class='bordered text-right bg-light'><b>{$__total_peso_consolidated_formatted}</b></td>
+                <td class='text-right bg-light'><b>{$__total_dollar_consolidated_formatted}</b></td>";
             
-            $table.="</tr>";   
+            $__table.="</tr>";   
         }
 
-        return $table;
+        return $__table;
     }
 
 
     /**
      * 
      */
-    public function get_html ($id, $options = []) {
+    private function get_html ($id, $options = []) {
         
         $__fyps = self::get_year_plan($id);
-        $__fy_ids = explode(',', $this->filter_accounts);
 
         # Main table header
-        $table = "<table class='table' cellpadding='0' cellspacing='0'>";
-        $table.="
-   
-                <tr class='header'>
-                    <td width='240px' class='bordered text-center bold' rowspan='2'>COST CENTERS</th>
-                ";
+        $__table = "<table class='table' cellpadding='0' cellspacing='0'>";
+        $__table.="<tr class='header'><td width='170px' class='bordered text-center bold' rowspan='2'>COST CENTERS</th>";
 
         # get fiscal year headers        
-        $table.= self::get_fy_header_table();
+        $__table.= self::get_fy_header_table();
                 
-        $table.="<td class='bordered text-center'  colspan='2'>TOTAL</td>
-        <td class='bordered text-center'  colspan='2'>CONSOLIDATED TOTAL</th>";
+        $__table.="<td class='bordered text-center'  colspan='2'>TOTAL</td><td class='bordered text-center'  colspan='2'>CONSOLIDATED TOTAL</th>";
 
-        $table.="</tr>
-                <tr class='header'>";
+        $__table.="</tr><tr class='header'>";
 
-        $table.= self::get_fy_header_amount();
+        $__table.= self::get_fy_header_amount();
 
         # peso dollar for total and consolidated header
-        $table.="<td class='bordered text-center'>PESO</th>
+        $__table.="<td class='bordered text-center'>PESO</th>
                 <td class='bordered text-center'>DOLLAR</th>
                 <td class='bordered text-center'>PESO</th>
                 <td class='bordered text-center'>DOLLAR</th>
@@ -352,37 +414,42 @@ class CostCenter extends Controller
                 ";
         
         foreach($this->users as $key => $value) {
-            switch($this->filter) {
-                case 'programs':
-                    if($value->usertype == $this->programGroup) $table.=self::get_cost_center_data($id, $value->userid);   
-                    break;
+            # exclude other accounts specified by admin
+            if(!in_array($value->userid, $this->exluded_cost_centers)) {
+                switch($this->filter) {
+                    case 'programs':
+                        if($value->usertype == $this->programGroup) $__table.=self::get_cost_center_data($id, $value->userid);   
+                        break;
 
-                case 'admin':
-                    if($value->usertype == $this->adminGroup) $table.=self::get_cost_center_data($id, $value->userid);   
-                    break;
+                    case 'admin':
+                        if($value->usertype == $this->adminGroup) $__table.=self::get_cost_center_data($id, $value->userid);   
+                        break;
 
-                default:
-                    $table.=self::get_cost_center_data($id, $value->userid);
-                    break;
+                    default:
+                        $__table.=self::get_cost_center_data($id, $value->userid);
+                        break;
+                }
             }
 
         }
 
+        # total per column
+        $__table.=self::get_fy_total_column ();
 
         # end of table
-        $table.="</table>";
+        $__table.="</table>";
 
         # exchange rates
-        $table.="<br/><i>(";
+        $__table.="<br/><i>(";
         foreach($this->year_plans as $key => $value) {
-            $table.="FY {$value->yeardesc} Exchange Rate: $1.00 = {$value->exchangerate};&nbsp;&nbsp;";
+            $__table.="FY {$value->yeardesc} Exchange Rate: $1.00 = {$value->exchangerate};&nbsp;&nbsp;";
         }
-        $table.=")</i>";
+        $__table.=")</i>";
 
         
-        $mooeTitle = $this->isMOOE == true ? '<b>(MOOE Only)</b>' : '';
-        $filterTitle = ($this->filter == 'all') ? '' : (($this->filter == 'admin') ? '(ADMIN)' : '(PROGRAMS)') ;
-        $html = "<html>
+        $__mooeTitle = $this->isMOOE == true ? '<b>(MOOE Only)</b>' : '';
+        $__filterTitle = ($this->filter == 'all') ? '' : (($this->filter == 'admin') ? '(ADMIN)' : '(PROGRAMS)') ;
+        $__html = "<html>
             <head>
                 <title>Details of Total Budget</title>
             {$this->style}</head>
@@ -391,7 +458,7 @@ class CostCenter extends Controller
                 <img src='{$this->logo}' width='120px'/>
                 <article>
                     <section style='width:100%;height:20px;font-size:13px;'><br/>
-                        <b>FYDP Total Budgetary Requirements Per Cost Center {$filterTitle} {$mooeTitle}</b><br/>
+                        <b>FYDP Total Budgetary Requirements Per Cost Center {$__filterTitle} {$__mooeTitle}</b><br/>
                             Five Year Plan {$this->fyp_details[0]->fyp_desc}<br/>
                             <small><b>(Peso & Dollar)</b></small><br/><br/><p><hr/></p>
                     </section>     
@@ -408,11 +475,11 @@ class CostCenter extends Controller
                 
             </footer>
 
-            <main>{$table}</main>
+            <main>{$__table}</main>
 
             </body>
             </html>";
-        return $html;
+        return $__html;
     }
 
     public function print($fy, $options = [], Request $request) {
