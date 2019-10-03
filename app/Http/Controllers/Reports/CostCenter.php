@@ -42,7 +42,7 @@ class CostCenter extends Controller
 
         # Exclude line items and cost center in the report
         $this->exluded_line_items = ['user-centric maximized database'];
-        $this->exluded_cost_centers = [35, 29, 4, 3, 14, 20, 30, 32, 36];
+        $this->exluded_cost_centers = [35, 29, 4, 3, 14, 30, 32, 36];
 
         # amounts      
         $this->total_amounts = [];  
@@ -440,7 +440,7 @@ class CostCenter extends Controller
         $__table.="</table>";
 
         # exchange rates
-        $__table.="<br/><i>(";
+        $__table.="<i>(";
         foreach($this->year_plans as $key => $value) {
             $__table.="FY {$value->yeardesc} Exchange Rate: $1.00 = {$value->exchangerate};&nbsp;&nbsp;";
         }
@@ -458,7 +458,7 @@ class CostCenter extends Controller
                 <img src='{$this->logo}' width='120px'/>
                 <article>
                     <section style='width:100%;height:20px;font-size:13px;'><br/>
-                        <b>FYDP Total Budgetary Requirements Per Cost Center {$__filterTitle} {$__mooeTitle}</b><br/>
+                        <b>FYP Total Budgetary Requirements Per Cost Center {$__filterTitle} {$__mooeTitle}</b><br/>
                             Five Year Plan {$this->fyp_details[0]->fyp_desc}<br/>
                             <small><b>(Peso & Dollar)</b></small><br/><br/><p><hr/></p>
                     </section>     
