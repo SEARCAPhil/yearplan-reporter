@@ -100,7 +100,7 @@ class CostCenter extends Controller
             @page { margin: 0 0;}
             body {
                 font-size: 10px;
-                margin-top: 5cm;
+                margin-top: 4.5cm;
                 margin-left: 1cm;
                 margin-right: 1cm;
                 margin-bottom: 2cm;
