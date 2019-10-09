@@ -40,9 +40,12 @@ class CostCenter extends Controller
         # mode
         $this->isMOOE = false;
 
+        # empty total
+        $this->hideEmpty = false;
+
         # Exclude line items and cost center in the report
         $this->exluded_line_items = ['user-centric maximized database'];
-        $this->exluded_cost_centers = [35, 29, 4, 3, 14, 20, 30, 32, 36];
+        $this->exluded_cost_centers = [35, 29, 4, 3, 14, 30, 32, 36];
 
         # amounts      
         $this->total_amounts = [];  
@@ -100,7 +103,7 @@ class CostCenter extends Controller
             @page { margin: 0 0;}
             body {
                 font-size: 10px;
-                margin-top: 5cm;
+                margin-top: 4.5cm;
                 margin-left: 1cm;
                 margin-right: 1cm;
                 margin-bottom: 2cm;
@@ -316,8 +319,8 @@ class CostCenter extends Controller
         $__total_amount_per_column = [];
 
         foreach($this->ast as $key => $value) {
-
-            $__table = "<tr><td>{$__account_info[0]->alias}</td>";
+            $cost_center_display_name = str_replace(' ', '', $__account_info[0]->alias);
+            $__table = "<tr class='{$cost_center_display_name}'><td>{$__account_info[0]->alias}</td>";
             $__total_peso = $__total_dollar = 0;
 
             foreach($this->year_plan_names as $keys => $val) { 
@@ -377,8 +380,11 @@ class CostCenter extends Controller
 
             $__table.="<td class='bordered text-right bg-light'><b>{$__total_peso_consolidated_formatted}</b></td>
                 <td class='text-right bg-light'><b>{$__total_dollar_consolidated_formatted}</b></td>";
-            
+            // set empty display
+            $is_empty_total = empty($__total_peso_consolidated) && empty($__total_dollar_consolidated);
             $__table.="</tr>";   
+
+            if($is_empty_total && ($this->hideEmpty === 'true')) $__table.="<style>.{$cost_center_display_name} {display:{'none'};}</style>";
         }
 
         return $__table;
@@ -440,7 +446,7 @@ class CostCenter extends Controller
         $__table.="</table>";
 
         # exchange rates
-        $__table.="<br/><i>(";
+        $__table.="<i>(";
         foreach($this->year_plans as $key => $value) {
             $__table.="FY {$value->yeardesc} Exchange Rate: $1.00 = {$value->exchangerate};&nbsp;&nbsp;";
         }
@@ -458,7 +464,7 @@ class CostCenter extends Controller
                 <img src='{$this->logo}' width='120px'/>
                 <article>
                     <section style='width:100%;height:20px;font-size:13px;'><br/>
-                        <b>FYDP Total Budgetary Requirements Per Cost Center {$__filterTitle} {$__mooeTitle}</b><br/>
+                        <b>FYP Total Budgetary Requirements Per Cost Center {$__filterTitle} {$__mooeTitle}</b><br/>
                             Five Year Plan {$this->fyp_details[0]->fyp_desc}<br/>
                             <small><b>(Peso & Dollar)</b></small><br/><br/><p><hr/></p>
                     </section>     
@@ -485,6 +491,7 @@ class CostCenter extends Controller
     public function print($fy, $options = [], Request $request) {
         $this->filter = $request->query('filter', 'all');
         $this->isMOOE =  $request->query('mooe', false);
+        $this->hideEmpty =  $request->query('hideEmpty');
 
         // instantiate and use the dompdf class
         $dompdf = new Dompdf(array('enable_remote' => true));

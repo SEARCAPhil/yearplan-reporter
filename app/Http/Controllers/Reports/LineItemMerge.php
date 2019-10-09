@@ -172,7 +172,7 @@ class LineItemMerge extends Controller
 
     private function get_style () {
         return '<style>
-            @page { margin: 0 0;}
+            @page { margin: 0 0; font-size: 14px;}
             body {
                 margin-top: 4cm;
                 margin-left: 1cm;
@@ -194,7 +194,7 @@ class LineItemMerge extends Controller
                 border-spacing: 0px;
                 border-collapse: separate;
                 width: 95%;
-                font-size: 9.5px;
+                font-size: 8.5px;
             }
 
             .table th.bordered {
@@ -305,7 +305,7 @@ class LineItemMerge extends Controller
                 <th width='15px' class='text-right'>&nbsp;</th>
                 <th width=40px' class='bordered'>&nbsp;</th>
 
-                <th width='320px' class='bordered'>&nbsp;</th>
+                <th width='250px' class='bordered'>&nbsp;</th>
                 <th width='40px' class='text-right bordered'>&nbsp</th>
 
                 <th width='40px' class='text-right bordered'>PESO</th>
@@ -483,7 +483,7 @@ class LineItemMerge extends Controller
         $dompdf = new Dompdf(array('enable_remote' => true));
         // options
         $dompdf->set_option('isHtml5ParserEnabled', true);
-        $dompdf->set_option('defaultFont', 'Arial');
+        $dompdf->set_option('defaultFont', 'Helvetica');
 
         $dompdf->loadHtml(self::get_html($fy, $uid));
 
